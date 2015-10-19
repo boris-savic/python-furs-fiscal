@@ -46,7 +46,6 @@ class BusinessPremiseDemo():
         if s:
             print("Immovable Success!")
 
-
     def register_movable_business_premise(self):
         """
         Let's register a Movable Business Premise.
