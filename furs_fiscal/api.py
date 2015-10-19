@@ -59,21 +59,68 @@ class FURSBusinessPremiseAPI(FURSBaseAPI):
             ConnectionException - Generic exception
         """
         message = FURSBusinessPremiseAPI._build_common_message_body(**locals())
-        real_estate_bp = message['BusinessPremiseRequest']['BusinessPremise']['BPIdentifier']['RealEstateBP']
 
-        real_estate_bp['PropertyID'] = {
-            'CadastralNumber': real_estate_cadastral_number,
-            'BuildingNumber': real_estate_building_number,
-            'BuildingSectionNumber': real_estate_building_section_number
+        bpi_identifier = message['BusinessPremiseRequest']['BusinessPremise']['BPIdentifier']
+
+        bpi_identifier['RealEstateBP'] = {
+            'Address': {
+                'Street': street,
+                'HouseNumber': house_number,
+                'HouseNumberAdditional': house_number_additional,
+                'Community': community,
+                'City': city,
+                'PostalCode': postal_code
+            },
+            'PropertyID': {
+                'CadastralNumber': real_estate_cadastral_number,
+                'BuildingNumber': real_estate_building_number,
+                'BuildingSectionNumber': real_estate_building_section_number
+            }
         }
+
+        if house_number_additional == '' or house_number_additional is None:
+            message['BusinessPremiseRequest']['BusinessPremise']\
+                ['BPIdentifier']['RealEstateBP']['Address'].pop('HouseNumberAdditional')
 
         self._send_request(path=REGISTER_BUSINESS_UNIT_PATH, data=message)
 
         return True
 
-    def register_movable_business_premise(self):
-        # TODO - define parameters, build JSON, call FURSBaseAPI
-        raise NotImplemented()
+    def register_movable_business_premise(self,
+                                          tax_number,
+                                          premise_id,
+                                          movable_type,
+                                          validity_date,
+                                          software_supplier_tax_number=None,
+                                          foreign_software_supplier_name=None,
+                                          special_notes=''):
+        """
+        Register movable business unit to FURS.
+
+        :param tax_number: (int) Tax number of the business. E.g. "10039856"
+        :param premise_id: (string) Business Premise Identifier. E.g. "PE12"
+        :param movable_type: (string) Type of the movable business unit. Values "A", "B" or "C"
+        :param validity_date: (datetime object) Datetime object representing the date when the premise started
+                                                issuing invoices
+        :param software_supplier_tax_number: (int) Tax number of the software supplier. E.g. "10039856"
+        :param foreign_software_supplier_name: (int) If software supplier is foreign company - does not have
+                                                     Slovenian Tax number, then please provide provider name.
+        :param special_notes: (string) If you need to send any special notes to FURS. Default is ""
+        :return: boolean: Will return True if success or raise an Exception if anything goes wrong
+
+        :raises
+            FURSException - FURS server returned an error
+            ConnectionTimedOutException - connection timed out
+            ConnectionException - Generic exception
+        """
+        message = FURSBusinessPremiseAPI._build_common_message_body(**locals())
+        bpi_identifier = message['BusinessPremiseRequest']['BusinessPremise']['BPIdentifier']
+
+        bpi_identifier['PremiseType'] = movable_type
+
+        self._send_request(path=REGISTER_BUSINESS_UNIT_PATH, data=message)
+
+        return True
 
     @staticmethod
     def _prepare_business_premise_request_header():
@@ -105,27 +152,11 @@ class FURSBusinessPremiseAPI(FURSBaseAPI):
                     FURSBusinessPremiseAPI._prepare_software_supplier_json(kwargs['software_supplier_tax_number'],
                                                                            kwargs['foreign_software_supplier_name'])
                 ],
-                'BPIdentifier': {
-                    'RealEstateBP': {
-                        'Address': {
-                            'Street': kwargs['street'],
-                            'HouseNumber': kwargs['house_number'],
-                            'HouseNumberAdditional': kwargs['house_number_additional'],
-                            'Community': kwargs['community'],
-                            'City': kwargs['city'],
-                            'PostalCode': kwargs['postal_code']
-                        }
-                    }
-                }
+                'BPIdentifier': {}
             }
         }
 
-        if kwargs['house_number_additional'] == '' or kwargs['house_number_additional'] is None:
-            data['BusinessPremiseRequest']['BusinessPremise']\
-                ['BPIdentifier']['RealEstateBP']['Address'].pop('HouseNumberAdditional')
-
         return data
-
 
 
 class FURSInvoiceAPI(FURSBaseAPI):
