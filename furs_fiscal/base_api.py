@@ -19,14 +19,11 @@ class FURSBaseAPI():
         than HTTP Code: 200 or if the request timeouts.
 
         :return: (boolean) True for ok, False if there was a problem accessing server.
-
-        :raises:
-            ConnectionException: If connection timed out
         """
         try:
             return self.connector.send_echo().status_code == codes.ok
         except Timeout as e:
-            raise ConnectionTimedOutException(e)
+            return False
 
     def _send_request(self, path, data):
         """
