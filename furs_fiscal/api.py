@@ -186,6 +186,50 @@ class FURSInvoiceAPI(FURSBaseAPI):
 
         return hashlib.md5(self._sign(content=content)).hexdigest()
 
+    def prepare_qr(self, tax_number, zoi, issued_date):
+        """
+        Get Data Record for QR Code that should be placed at the bottom of the Invoice.
+
+        :param tax_number:
+        :param zoi:
+        :param issued_date:
+        :return: (string) Data Record
+        """
+        return FURSInvoiceAPI._prepare_zoi_for_print(tax_number=tax_number, zoi=zoi, issued_date=issued_date)
+
+    def prepare_code128(self, tax_number, zoi, issued_date):
+        """
+        Get Data Record for Code 128 that should be placed at the bottom of the Invoice.
+
+        :param tax_number:
+        :param zoi:
+        :param issued_date:
+        :return: (string) Data Record
+        """
+        return FURSInvoiceAPI._prepare_zoi_for_print(tax_number=tax_number, zoi=zoi, issued_date=issued_date)
+
+    def prepare_pdf417(self, tax_number, zoi, issued_date):
+        """
+        Get Data Record for PDF 417 that should be placed at the bottom of the Invoice.
+
+        :param tax_number:
+        :param zoi:
+        :param issued_date:
+        :return: (string) Data Record
+        """
+        return FURSInvoiceAPI._prepare_zoi_for_print(tax_number=tax_number, zoi=zoi, issued_date=issued_date)
+
+    @staticmethod
+    def _prepare_zoi_for_print(tax_number, zoi, issued_date):
+        zoi_base10 = str(int(zoi, 16))
+        date_str = issued_date.strftime('%y%m%d%H%M%S')
+
+        data = zoi_base10+str(tax_number)+date_str
+
+        control = str(sum(map(int, data)) % 10)
+
+        return data+control
+
     def get_eor(self, *args, **kwargs):
         # TODO - define parameters, build JSON, call FURSBaseAPI
         raise NotImplemented()

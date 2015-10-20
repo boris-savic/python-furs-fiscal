@@ -31,15 +31,23 @@ class InvoiceDemo():
                              production=False,
                              request_timeout=1.0)
 
+        date_issued = datetime.now()
         # let's get that ZOI
         zoi = api.calculate_zoi(tax_number=10039856,  # Issuer Tax Number
-                                issued_date=datetime.now(),  # DateTime of the Invoice
+                                issued_date=date_issued,  # DateTime of the Invoice
                                 invoice_number='11',  # Invoice Number - Sequential
                                 business_premise_id='BP101',  # Business premise ID
                                 electronic_device_id='B1',  # Electronic Device ID
                                 invoice_amount=Decimal('19.15'))  # Invoice Amount
 
         print("ZOI: " + zoi)
+
+        # Let's obtain data for Code128/QR/PDF417 that should be placed at the bottom of the Invoice
+        print_data = api.prepare_qr(tax_number=10039856,
+                                    zoi=zoi,
+                                    issued_date=date_issued)
+
+        print("QR/Code128/PDF417 Data: " + print_data)
 
 
 if __name__ == "__main__":
