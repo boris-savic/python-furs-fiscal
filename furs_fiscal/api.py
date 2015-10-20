@@ -181,7 +181,7 @@ class FURSInvoiceAPI(FURSBaseAPI):
         :return: (string) ZOI string
         """
         content = "%s%s%s%s%s%s" % (tax_number,
-                                    issued_date.strftime('%dd-%m-%Y %H:%M:%S'),
+                                    issued_date.strftime('%d-%m-%Y %H:%M:%S'),
                                     invoice_number, business_premise_id, electronic_device_id, invoice_amount)
 
         return hashlib.md5(self._sign(content=content)).hexdigest()
