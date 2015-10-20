@@ -71,7 +71,48 @@ api.register_movable_business_premise(tax_number=10039856,
 
 ```
 
-## Support
+### Calculate Invoice ZOI - Protected ID
 
-TODO
+At the end of every Invoice your should print ZOI (Protected ID). To obtain it follow the next procedure:
+
+```python
+from furs_fiscal.api import FURSInvoiceAPI
+
+api = FURSInvoiceAPI(p12_path='my_cert.p12',
+                     p12_password='cert_pass',
+                     production=False,
+                     request_timeout=1.0)
+
+date_issued = datetime.now()
+
+zoi = api.calculate_zoi(tax_number=10039856,
+                        issued_date=date_issued,
+                        invoice_number='11',
+                        business_premise_id='BP101',
+                        electronic_device_id='B1',
+                        invoice_amount=Decimal('19.15'))
+
+```
+
+### Generate Data for QR/Code128/PDF417
+
+You're supposed to print QR Code/Code128 or PDF 417 on every invoice after the ZOI. To obtian the data for QR/Code128/PDF417 perform the following method call on **FURSInvoiceAPI** object.
+
+```python
+qr_data = api.prepare_qr(tax_number=10039856,
+                         zoi=zoi,
+                         issued_date=date_issued)
+```
+
+
+## Contact
+
+**Boris Savic**
+
+ * Twitter: @zitko
+ * Email: boris70@gmail.com
+
+
+
+
 
