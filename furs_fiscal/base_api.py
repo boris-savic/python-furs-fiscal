@@ -1,4 +1,5 @@
 from jose import jws
+from OpenSSL import crypto
 from requests.exceptions import Timeout
 from requests import codes
 
@@ -67,3 +68,8 @@ class FURSBaseAPI():
                                 message=server_response[server_response.keys()[0]]['Error']['ErrorMessage'])
 
         return server_response
+
+    def _sign(self, content, digest='SHA256'):
+        pkey = self.connector.p12.get_privatekey()
+
+        return crypto.sign(pkey=pkey, data=content, digest=digest)

@@ -1,3 +1,4 @@
+import hashlib
 import pytz
 import uuid
 import datetime
@@ -161,17 +162,29 @@ class FURSBusinessPremiseAPI(FURSBaseAPI):
 
 class FURSInvoiceAPI(FURSBaseAPI):
 
-    def get_protected_id(self, *args, **kwargs):
-        # TODO - define parameters, docstring
-        return self.get_zoi(*args, **kwargs)
+    def calculate_zoi(self,
+                      tax_number,
+                      issued_date,
+                      invoice_number,
+                      business_premise_id,
+                      electronic_device_id,
+                      invoice_amount):
+        """
+        Calculate ZOI - Protective Mark of the Invoice Issuer.
 
-    def get_unique_invoice_id(self, *args, **kwargs):
-        # TODO - define parameters, docstring
-        return self.get_eor(*args, **kwargs)
+        :param tax_number: (int) issuer tax number
+        :param issued_date: (datetime) datetime of the invoice issue
+        :param invoice_number: (string) invoice sequential number
+        :param business_premise_id: (string) business premise id
+        :param electronic_device_id: (string) electronic device id
+        :param invoice_amount: (Decimal) invoice amount
+        :return: (string) ZOI string
+        """
+        content = "%s%s%s%s%s%s" % (tax_number,
+                                    issued_date.strftime('%dd-%m-%Y %H:%M:%S'),
+                                    invoice_number, business_premise_id, electronic_device_id, invoice_amount)
 
-    def get_zoi(self, *args, **kwargs):
-        # TODO - define parameters
-        raise NotImplemented()
+        return hashlib.md5(self._sign(content=content)).hexdigest()
 
     def get_eor(self, *args, **kwargs):
         # TODO - define parameters, build JSON, call FURSBaseAPI
