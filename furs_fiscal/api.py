@@ -5,11 +5,16 @@ import datetime
 
 from base_api import FURSBaseAPI
 
+
 TYPE_MOVABLE_PREMISE_A = 'A'
 TYPE_MOVABLE_PREMISE_B = 'B'
 TYPE_MOVABLE_PREMISE_C = 'C'
 
+NUMBERING_STRUCTURE_CENTRAL = 'C'
+NUMBERING_STRUCTURE_DEVICE = 'B'
+
 REGISTER_BUSINESS_UNIT_PATH = 'v1/cash_registers/invoices/register'
+INVOICE_ISSUE_PATH = 'v1/cash_registers/invoices'
 
 
 class FURSBusinessPremiseAPI(FURSBaseAPI):
@@ -162,6 +167,21 @@ class FURSBusinessPremiseAPI(FURSBaseAPI):
 
 class FURSInvoiceAPI(FURSBaseAPI):
 
+    def __init__(self, low_tax_rate=9.5, high_tax_rate=22.0, *args, **kwargs):
+        """
+        Initialize the class with current active tax rates in Slovenia.
+
+        :param low_tax_rate: (float) - Defaults to 9.5 for 9.5%
+        :param high_tax_rate:  (float) - Defaults to 22.0 for 22%
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        self.low_tax_rate = low_tax_rate
+        self.high_tax_rate = high_tax_rate
+
+        super(FURSInvoiceAPI, self).__init__(*args, **kwargs)
+
     def calculate_zoi(self,
                       tax_number,
                       issued_date,
@@ -230,6 +250,143 @@ class FURSInvoiceAPI(FURSBaseAPI):
 
         return data+control
 
-    def get_eor(self, *args, **kwargs):
-        # TODO - define parameters, build JSON, call FURSBaseAPI
-        raise NotImplemented()
+    def get_invoice_eor(self,
+                        tax_number,
+                        issued_date,
+                        invoice_number,
+                        business_premise_id,
+                        electronic_device_id,
+                        invoice_amount,
+                        low_tax_rate_base=None,
+                        low_tax_rate_amount=None,
+                        high_tax_rate_base=None,
+                        high_tax_rate_amount=None,
+                        other_taxes_amount=None,
+                        exempt_vat_taxable_amount=None,
+                        reverse_vat_taxable_amount=None,
+                        non_taxable_amount=None,
+                        special_tax_rules_amount=None,
+                        payment_amount=None,
+                        customer_vat_number=None,
+                        returns_amount=None,
+                        operator_tax_number=None,
+                        foreign_operator=False,
+                        subsequent_submit=False,
+                        reference_invoice_number=None,
+                        reference_invoice_business_premise_id=None,
+                        reference_invoice_electronic_device_id=None,
+                        reference_invoice_issued_date=None,
+                        numbering_structure=NUMBERING_STRUCTURE_DEVICE,
+                        special_notes=''):
+        # build the base message body
+        message = self._build_common_message_body(**locals())
+
+        tax_spec = {}
+        # add tax specification
+        if low_tax_rate_base or high_tax_rate_base:
+            tax_spec['VAT'] = self._build_tax_specification(low_tax_rate_base=low_tax_rate_base,
+                                                            low_tax_rate_amount=low_tax_rate_amount,
+                                                            high_tax_rate_base=high_tax_rate_base,
+                                                            high_tax_rate_amount=high_tax_rate_amount)
+
+        if non_taxable_amount:
+            tax_spec['NontaxableAmount'] = non_taxable_amount
+        if reverse_vat_taxable_amount:
+            tax_spec['ReverseVATTaxableAmount'] = reverse_vat_taxable_amount
+        if exempt_vat_taxable_amount:
+            tax_spec['ExemptVATTaxableAmount'] = exempt_vat_taxable_amount
+        if other_taxes_amount:
+            tax_spec['OtherTaxesAmount'] = other_taxes_amount
+
+        message['Invoice']['TaxesPerSeller'].append(tax_spec)
+
+        if customer_vat_number:
+            message['Invoice']['CustomerTaxNumber'] = customer_vat_number
+
+        if returns_amount:
+            message['Invoice']['ReturnsAmount'] = returns_amount
+
+        if operator_tax_number:
+            message['Invoice']['OperatorTaxNumber'] = operator_tax_number
+
+        if foreign_operator:
+            message['Invoice']['ForeignOperator'] = 1
+
+        if subsequent_submit:
+            message['Invoice']['SubsequentSubmit'] = 1
+
+        if reference_invoice_number:
+            reference_invoice = {
+                'ReferenceInvoiceIdentifier': {
+                    'BusinessPremiseID': reference_invoice_business_premise_id,
+                    'ElectronicDeviceID': reference_invoice_electronic_device_id,
+                    'InvoiceNumber': reference_invoice_number
+                },
+                'ReferenceInvoiceIssuedDateTime': reference_invoice_issued_date.strftime("%Y-%m-%dT%H:%M:%SZ")
+            }
+
+        self._send_request(path=REGISTER_BUSINESS_UNIT_PATH, data=message)
+
+        return True
+
+    def _build_tax_specification(self,
+                                 low_tax_rate_base,
+                                 low_tax_rate_amount,
+                                 high_tax_rate_base,
+                                 high_tax_rate_amount):
+        """
+        Build the TaxesPerSeller part of the request
+
+        :param low_tax_rate_base:
+        :param low_tax_rate_amount:
+        :param high_tax_rate_base:
+        :param high_tax_rate_amount:
+        :return:
+        """
+        low_tax_spec = {
+            'TaxRate': self.low_tax_rate,
+            'TaxableAmount': low_tax_rate_base,
+            'TaxAmount': low_tax_rate_amount
+        }
+
+        high_tax_spec = {
+            'TaxRate': self.high_tax_rate,
+            'TaxableAmount': high_tax_rate_base,
+            'TaxAmount': high_tax_rate_amount
+        }
+
+        return filter(lambda x: x['TaxableAmount'] is not None, [low_tax_spec, high_tax_spec])
+
+
+    @staticmethod
+    def _prepare_invoice_request_header():
+        header = {
+            "MessageID": str(uuid.uuid4()),
+            "DateTime": datetime.datetime.now(tz=pytz.UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+        }
+
+        return header
+
+    @staticmethod
+    def _build_common_message_body(*args, **kwargs):
+        data = dict()
+        data['InvoiceRequest'] = {
+            'Header': FURSInvoiceAPI._prepare_invoice_request_header(),
+            'Invoice': {
+                'TaxNumber': kwargs['tax_number'],
+                'IssuedDateTime': kwargs['issued_date'].strftime("%Y-%m-%dT%H:%M:%SZ"),
+                'NumberingStructure': kwargs['numbering_structure'],
+                'InvoiceIdentifier': {
+                    'BusinessPremiseID': kwargs['business_premise_id'],
+                    'ElectronicDeviceID': kwargs['electronic_device_id'],
+                    'InvoiceNumber': kwargs['invoice_number']
+                },
+                'InvoiceAmount': kwargs['invoice_amount'],
+                'PaymentAmount': kwargs['payment_amount'] if kwargs['payment_amount'] else kwargs['invoice_amount'],
+                'ProtectedID': kwargs['zoi'],
+                'TaxesPerSeller': [],
+                'SpecialNotes': kwargs['special_notes']
+            }
+        }
+
+        return data
