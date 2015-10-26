@@ -3,7 +3,7 @@ Python library for simplified communication with  FURS (Finančna uprava Republi
 
 ## Installation
 
-TODO 
+TODO - will add to PyPI once the library is completed
 
 ## Quick Start
 
@@ -96,7 +96,7 @@ zoi = api.calculate_zoi(tax_number=10039856,
 
 ### Generate Data for QR/Code128/PDF417
 
-You're supposed to print QR Code/Code128 or PDF 417 on every invoice after the ZOI. To obtian the data for QR/Code128/PDF417 perform the following method call on **FURSInvoiceAPI** object.
+You're supposed to print QR Code/Code128 or PDF 417 on every invoice after the ZOI. To obtain the data for QR/Code128/PDF417 perform the following method call on **FURSInvoiceAPI** object.
 
 ```python
 qr_data = api.prepare_qr(tax_number=10039856,
@@ -109,7 +109,7 @@ qr_data = api.prepare_qr(tax_number=10039856,
 
 **Boris Savic**
 
- * Twitter: @zitko
+ * Twitter: [@zitko](https://twitter.com/zitko)
  * Email: boris70@gmail.com
 
 
