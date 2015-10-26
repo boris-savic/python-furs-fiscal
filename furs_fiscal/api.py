@@ -1,6 +1,4 @@
 import hashlib
-import json
-import pytz
 import uuid
 import datetime
 
@@ -133,7 +131,7 @@ class FURSBusinessPremiseAPI(FURSBaseAPI):
     def _prepare_business_premise_request_header():
         header = {
             "MessageID": str(uuid.uuid4()),
-            "DateTime": datetime.datetime.now(tz=pytz.UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+            "DateTime": datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
         }
 
         return header
@@ -398,7 +396,7 @@ class FURSInvoiceAPI(FURSBaseAPI):
     def _prepare_invoice_request_header():
         header = {
             "MessageID": str(uuid.uuid4()),
-            "DateTime": datetime.datetime.now(tz=pytz.UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+            "DateTime": datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
         }
 
         return header
