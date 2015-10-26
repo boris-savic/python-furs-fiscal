@@ -1,4 +1,5 @@
 import hashlib
+import json
 import pytz
 import uuid
 import datetime
@@ -167,20 +168,19 @@ class FURSBusinessPremiseAPI(FURSBaseAPI):
 
 class FURSInvoiceAPI(FURSBaseAPI):
 
-    def __init__(self, low_tax_rate=9.5, high_tax_rate=22.0, *args, **kwargs):
+    def __init__(self, low_tax_rate=9.5, high_tax_rate=22, *args, **kwargs):
         """
         Initialize the class with current active tax rates in Slovenia.
 
         :param low_tax_rate: (float) - Defaults to 9.5 for 9.5%
-        :param high_tax_rate:  (float) - Defaults to 22.0 for 22%
+        :param high_tax_rate:  (float) - Defaults to 22 for 22%
         :param args:
         :param kwargs:
         :return:
         """
+        FURSBaseAPI.__init__(self, *args, **kwargs)
         self.low_tax_rate = low_tax_rate
         self.high_tax_rate = high_tax_rate
-
-        super(FURSInvoiceAPI, self).__init__(*args, **kwargs)
 
     def calculate_zoi(self,
                       tax_number,
@@ -251,6 +251,7 @@ class FURSInvoiceAPI(FURSBaseAPI):
         return data+control
 
     def get_invoice_eor(self,
+                        zoi,
                         tax_number,
                         issued_date,
                         invoice_number,
@@ -298,22 +299,22 @@ class FURSInvoiceAPI(FURSBaseAPI):
         if other_taxes_amount:
             tax_spec['OtherTaxesAmount'] = other_taxes_amount
 
-        message['Invoice']['TaxesPerSeller'].append(tax_spec)
+        message['InvoiceRequest']['Invoice']['TaxesPerSeller'].append(tax_spec)
 
         if customer_vat_number:
-            message['Invoice']['CustomerTaxNumber'] = customer_vat_number
+            message['InvoiceRequest']['Invoice']['CustomerTaxNumber'] = customer_vat_number
 
         if returns_amount:
-            message['Invoice']['ReturnsAmount'] = returns_amount
+            message['InvoiceRequest']['Invoice']['ReturnsAmount'] = returns_amount
 
         if operator_tax_number:
-            message['Invoice']['OperatorTaxNumber'] = operator_tax_number
+            message['InvoiceRequest']['Invoice']['OperatorTaxNumber'] = operator_tax_number
 
         if foreign_operator:
-            message['Invoice']['ForeignOperator'] = 1
+            message['InvoiceRequest']['Invoice']['ForeignOperator'] = 1
 
         if subsequent_submit:
-            message['Invoice']['SubsequentSubmit'] = 1
+            message['InvoiceRequest']['Invoice']['SubsequentSubmit'] = 1
 
         if reference_invoice_number:
             reference_invoice = {
@@ -322,12 +323,14 @@ class FURSInvoiceAPI(FURSBaseAPI):
                     'ElectronicDeviceID': reference_invoice_electronic_device_id,
                     'InvoiceNumber': reference_invoice_number
                 },
-                'ReferenceInvoiceIssuedDateTime': reference_invoice_issued_date.strftime("%Y-%m-%dT%H:%M:%SZ")
+                'ReferenceInvoiceIssueDateTime': reference_invoice_issued_date.strftime("%Y-%m-%dT%H:%M:%S")
             }
 
-        self._send_request(path=REGISTER_BUSINESS_UNIT_PATH, data=message)
+            message['InvoiceRequest']['Invoice']['ReferenceInvoice'] = reference_invoice
 
-        return True
+        response = self._send_request(path=INVOICE_ISSUE_PATH, data=message)
+
+        return response['InvoiceResponse']['UniqueInvoiceID']
 
     def _build_tax_specification(self,
                                  low_tax_rate_base,
@@ -374,7 +377,7 @@ class FURSInvoiceAPI(FURSBaseAPI):
             'Header': FURSInvoiceAPI._prepare_invoice_request_header(),
             'Invoice': {
                 'TaxNumber': kwargs['tax_number'],
-                'IssuedDateTime': kwargs['issued_date'].strftime("%Y-%m-%dT%H:%M:%SZ"),
+                'IssueDateTime': kwargs['issued_date'].strftime("%Y-%m-%dT%H:%M:%S"),
                 'NumberingStructure': kwargs['numbering_structure'],
                 'InvoiceIdentifier': {
                     'BusinessPremiseID': kwargs['business_premise_id'],
@@ -385,7 +388,6 @@ class FURSInvoiceAPI(FURSBaseAPI):
                 'PaymentAmount': kwargs['payment_amount'] if kwargs['payment_amount'] else kwargs['invoice_amount'],
                 'ProtectedID': kwargs['zoi'],
                 'TaxesPerSeller': [],
-                'SpecialNotes': kwargs['special_notes']
             }
         }
 
