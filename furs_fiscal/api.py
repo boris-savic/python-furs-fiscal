@@ -279,6 +279,39 @@ class FURSInvoiceAPI(FURSBaseAPI):
                         reference_invoice_issued_date=None,
                         numbering_structure=NUMBERING_STRUCTURE_DEVICE,
                         special_notes=''):
+        """
+        Obtain EOR from FURS. Will build the request and call the FURS API.
+
+        :param zoi:
+        :param tax_number:
+        :param issued_date:
+        :param invoice_number:
+        :param business_premise_id:
+        :param electronic_device_id:
+        :param invoice_amount:
+        :param low_tax_rate_base:
+        :param low_tax_rate_amount:
+        :param high_tax_rate_base:
+        :param high_tax_rate_amount:
+        :param other_taxes_amount:
+        :param exempt_vat_taxable_amount:
+        :param reverse_vat_taxable_amount:
+        :param non_taxable_amount:
+        :param special_tax_rules_amount:
+        :param payment_amount:
+        :param customer_vat_number:
+        :param returns_amount:
+        :param operator_tax_number: (int) - Tax number of the register operator
+        :param foreign_operator: (boolean) - Set to True if register operator does not have Slovenian TAX number
+        :param subsequent_submit: (boolean) - Set to True if you're reissuing the request to FURS
+        :param reference_invoice_number: (string) - Required if we're issuing Storno
+        :param reference_invoice_business_premise_id: (string) - Required if we're issuing Storno
+        :param reference_invoice_electronic_device_id: (string) - Required if we're issuing Storno
+        :param reference_invoice_issued_date: (datetime) - Required if we're issuing Storno
+        :param numbering_structure: (string) - defaults to B - numbering is defined by the Register, C for central numbering
+        :param special_notes:
+        :return: eor (string) - Invoice UniqueID from FURS
+        """
         # build the base message body
         message = self._build_common_message_body(**locals())
 

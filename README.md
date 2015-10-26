@@ -104,6 +104,25 @@ qr_data = api.prepare_qr(tax_number=10039856,
                          issued_date=date_issued)
 ```
 
+### Get EOR From FURS
+
+To obtain FURS EOR code - UniqueID, you'll have to call the following method. It provides several other parameters,
+for issuing invoice storno and special tax rules. Please read the full documentation.
+
+```python
+eor = api.get_invoice_eor(zoi=zoi,
+                          tax_number=10039856,
+                          issued_date=date_issued,
+                          invoice_number='11',
+                          business_premise_id='BP101',
+                          electronic_device_id='B1',
+                          invoice_amount=66.71,
+                          low_tax_rate_base=35.14,
+                          low_tax_rate_amount=3.34,
+                          high_tax_rate_base=23.14,
+                          high_tax_rate_amount=5.09,
+                          operator_tax_number=12345678)
+```
 
 ## Contact
 

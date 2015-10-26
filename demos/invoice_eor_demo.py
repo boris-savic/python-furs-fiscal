@@ -45,8 +45,7 @@ class InvoiceEORDemo():
                                   low_tax_rate_amount=3.34,
                                   high_tax_rate_base=23.14,
                                   high_tax_rate_amount=5.09,
-                                  operator_tax_number=12345678,
-                                  special_notes='Example of simple invoice')
+                                  operator_tax_number=12345678)
 
         print("EOR: " + eor)
 
