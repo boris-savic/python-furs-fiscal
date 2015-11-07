@@ -14,6 +14,7 @@ class InvoiceEORDemo():
 
     def demo_eor(self):
         """
+        This demo shows how you should report your invoice to the FURS.
         """
 
         # First we'll need to initialize FURSInvoice APi - so that it loads all the certs
