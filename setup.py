@@ -7,9 +7,10 @@ setup(
   author = 'Boris Savic',
   author_email = 'boris70@gmail.com',
   url = 'https://github.com/boris-savic/python-furs-fiscal',
-  download_url = 'https://github.com/boris-savic/python-furs-fiscal/tarball/0.1',
+  download_url = 'https://github.com/boris-savic/python-furs-fiscal/tarball/0.1.0',
   keywords = ['FURS', 'fiscal', 'fiscal register', 'davcne blagajne'],
   classifiers = [],
+  data_files=[('certs', ['test_certificate.pem'])],
   install_requires=[
         'requests',
         'python-jose',
