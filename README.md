@@ -124,6 +124,17 @@ eor = api.get_invoice_eor(zoi=zoi,
                           operator_tax_number=12345678)
 ```
 
+## Contributing
+
+This library should be sufficient to integrate into your software as is, but there is still some work that needs to be done.
+
+You can contribute in one of the following areas:
+
+ * Detailed documentation
+ * More examples for various use-cases
+ * Support for issuing invoices with multiple seller tax rates
+ * Tests - I'll be adding them soon, but I'll be grateful if you'd help
+
 ## Contact
 
 **Boris Savic**
