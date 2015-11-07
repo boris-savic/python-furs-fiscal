@@ -3,7 +3,7 @@ Python library for simplified communication with  FURS (Finančna uprava Republi
 
 ## Installation
 
-TODO - will add to PyPI once the library is completed
+    $ pip install furs_fiscal
 
 ## Quick Start
 
