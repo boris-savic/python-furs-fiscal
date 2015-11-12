@@ -7,7 +7,7 @@ from connector import Connector
 from exceptions import ConnectionException, ConnectionTimedOutException, FURSException
 
 
-class FURSBaseAPI():
+class FURSBaseAPI(object):
     def __init__(self, p12_path, p12_password, production=True, request_timeout=2.0):
         self.connector = Connector(p12_path=p12_path,
                                    p12_password=p12_password,
