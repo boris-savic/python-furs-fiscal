@@ -204,31 +204,9 @@ class FURSInvoiceAPI(FURSBaseAPI):
 
         return hashlib.md5(self._sign(content=content)).hexdigest()
 
-    def prepare_qr(self, tax_number, zoi, issued_date):
+    def prepare_printable(self, tax_number, zoi, issued_date):
         """
-        Get Data Record for QR Code that should be placed at the bottom of the Invoice.
-
-        :param tax_number:
-        :param zoi:
-        :param issued_date:
-        :return: (string) Data Record
-        """
-        return FURSInvoiceAPI._prepare_zoi_for_print(tax_number=tax_number, zoi=zoi, issued_date=issued_date)
-
-    def prepare_code128(self, tax_number, zoi, issued_date):
-        """
-        Get Data Record for Code 128 that should be placed at the bottom of the Invoice.
-
-        :param tax_number:
-        :param zoi:
-        :param issued_date:
-        :return: (string) Data Record
-        """
-        return FURSInvoiceAPI._prepare_zoi_for_print(tax_number=tax_number, zoi=zoi, issued_date=issued_date)
-
-    def prepare_pdf417(self, tax_number, zoi, issued_date):
-        """
-        Get Data Record for PDF 417 that should be placed at the bottom of the Invoice.
+        Get Data Record for QR Code/Code 128/PDF417 that should be placed at the bottom of the Invoice.
 
         :param tax_number:
         :param zoi:

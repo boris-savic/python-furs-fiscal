@@ -17,7 +17,7 @@ FURS_TEST_CERT = os.path.join(os.path.dirname(__file__), 'certs/test_certificate
 FURS_PRODUCTION_CERT = os.path.join(os.path.dirname(__file__), 'certs/test_certificate.pem')
 
 
-class Connector():
+class Connector(object):
     """
     Connector performs all the communication with the FURS server.
 
@@ -63,13 +63,13 @@ class Connector():
 
         :return: None
         """
-        self.cert_temp = tempfile.NamedTemporaryFile(delete=False)
+        self.cert_temp = tempfile.NamedTemporaryFile()
         self.cert_temp.write(crypto.dump_certificate(crypto.FILETYPE_PEM, self.p12.get_certificate()))
-        self.cert_temp.close()
+        self.cert_temp.flush()
 
-        self.pkey_temp = tempfile.NamedTemporaryFile(delete=False)
+        self.pkey_temp = tempfile.NamedTemporaryFile()
         self.pkey_temp.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, self.p12.get_privatekey()))
-        self.pkey_temp.close()
+        self.pkey_temp.flush()
 
     def _get_jws_header(self):
         """
@@ -150,6 +150,3 @@ class Connector():
         :return: (dict) request header
         """
         return {'Content-Type': 'application/json; charset=UTF-8'}
-
-
-

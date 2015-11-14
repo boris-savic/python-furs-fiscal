@@ -43,7 +43,7 @@ class InvoiceDemo():
         print("ZOI: " + zoi)
 
         # Let's obtain data for Code128/QR/PDF417 that should be placed at the bottom of the Invoice
-        print_data = api.prepare_qr(tax_number=10039856,
+        print_data = api.prepare_printable(tax_number=10039856,
                                     zoi=zoi,
                                     issued_date=date_issued)
 
