@@ -1,6 +1,8 @@
 # python-furs-fiscal
 Python library for simplified communication with  FURS (Finančna uprava Republike Slovenije).
 
+
+
 ## Installation
 
     $ pip install furs_fiscal
@@ -99,9 +101,9 @@ zoi = api.calculate_zoi(tax_number=10039856,
 You're supposed to print QR Code/Code128 or PDF 417 on every invoice after the ZOI. To obtain the data for QR/Code128/PDF417 perform the following method call on **FURSInvoiceAPI** object.
 
 ```python
-qr_data = api.prepare_qr(tax_number=10039856,
-                         zoi=zoi,
-                         issued_date=date_issued)
+qr_data = api.prepare_printable(tax_number=10039856,
+                                zoi=zoi,
+                                issued_date=date_issued)
 ```
 
 ### Get EOR From FURS

@@ -213,15 +213,10 @@ class FURSInvoiceAPI(FURSBaseAPI):
         :param issued_date:
         :return: (string) Data Record
         """
-        return FURSInvoiceAPI._prepare_zoi_for_print(tax_number=tax_number, zoi=zoi, issued_date=issued_date)
-
-    @staticmethod
-    def _prepare_zoi_for_print(tax_number, zoi, issued_date):
         zoi_base10 = str(int(zoi, 16))
         date_str = issued_date.strftime('%y%m%d%H%M%S')
 
         data = zoi_base10+str(tax_number)+date_str
-
         control = str(sum(map(int, data)) % 10)
 
         return data+control
