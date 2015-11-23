@@ -321,14 +321,14 @@ class FURSInvoiceAPI(FURSBaseAPI):
             message['InvoiceRequest']['Invoice']['SubsequentSubmit'] = 1
 
         if reference_invoice_number:
-            reference_invoice = {
+            reference_invoice = [{
                 'ReferenceInvoiceIdentifier': {
                     'BusinessPremiseID': reference_invoice_business_premise_id,
                     'ElectronicDeviceID': reference_invoice_electronic_device_id,
                     'InvoiceNumber': reference_invoice_number
                 },
                 'ReferenceInvoiceIssueDateTime': reference_invoice_issued_date.strftime("%Y-%m-%dT%H:%M:%S")
-            }
+            }]
 
             message['InvoiceRequest']['Invoice']['ReferenceInvoice'] = reference_invoice
 
