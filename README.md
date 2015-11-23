@@ -136,6 +136,7 @@ You can contribute in one of the following areas:
  * More examples for various use-cases
  * Support for issuing invoices with multiple seller tax rates
  * Tests - I'll be adding them soon, but I'll be grateful if you'd help
+ * Support for Decimal object serialization
 
 ## Contact
 

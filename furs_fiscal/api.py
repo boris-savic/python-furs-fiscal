@@ -35,7 +35,7 @@ class FURSBusinessPremiseAPI(FURSBaseAPI):
                                             validity_date,
                                             software_supplier_tax_number=None,
                                             foreign_software_supplier_name=None,
-                                            special_notes=''):
+                                            special_notes='No notes'):
         """
         Register immovable business premise to FURS.
 
@@ -98,7 +98,7 @@ class FURSBusinessPremiseAPI(FURSBaseAPI):
                                           validity_date,
                                           software_supplier_tax_number=None,
                                           foreign_software_supplier_name=None,
-                                          special_notes=''):
+                                          special_notes='No notes'):
         """
         Register movable business unit to FURS.
 

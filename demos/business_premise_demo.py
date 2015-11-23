@@ -24,7 +24,7 @@ class BusinessPremiseDemo():
         api = FURSBusinessPremiseAPI(p12_path=P12_CERT_PATH,
                                      p12_password=P12_CERT_PASS,
                                      production=False,
-                                     request_timeout=1.0)
+                                     request_timeout=2.0)
 
         # Registering business unit is easy ...
         s = api.register_immovable_business_premise(tax_number=10039856,  # TaxNumber of our Company
@@ -41,7 +41,7 @@ class BusinessPremiseDemo():
                                                     validity_date=datetime.now() - timedelta(days=60),  # Date when we opened premise
                                                     software_supplier_tax_number=24564444,  # TaxNumber of SW Supplier
                                                     foreign_software_supplier_name=None,  # If SW Supplier does not have Slovenian Tax Number pass in the supplier name
-                                                    special_notes='')  # If you want to add a special note for FURS. Generaly just leave empty
+                                                    special_notes='No notes')  # If you want to add a special note for FURS. Generaly just leave empty
 
         if s:
             print("Immovable Success!")
@@ -69,7 +69,7 @@ class BusinessPremiseDemo():
                                                   validity_date=datetime.now() - timedelta(days=60),  # Date when we opened premise
                                                   software_supplier_tax_number=24564444,  # TaxNumber of SW Supplier
                                                   foreign_software_supplier_name=None,  # If SW Supplier does not have Slovenian Tax Number pass in the supplier name
-                                                  special_notes='')  # If you want to add a special note for FURS. Generaly just leave empty
+                                                  special_notes='No')  # If you want to add a special note for FURS. Generaly just leave empty
 
         if s:
             print("Movable Success!")
