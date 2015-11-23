@@ -22,17 +22,19 @@ class Connector(object):
     Connector performs all the communication with the FURS server.
 
     """
-    def __init__(self, p12_path, p12_password, production=True, request_timeout=2):
+    def __init__(self, p12_path, p12_password, p12_buffer=None, production=True, request_timeout=2):
         """
         Initializes and loads certs to memory.
 
         :param p12_path: (string) Path to the .p12 file for current client
         :param p12_password: (string) Password for the .p12 file
+        :param p12_buffer: (string) Buffer of the .p12 file
         :param production: (boolean) Should we use FURS Production server of Test server
         :param request_timeout: (float) How long should we wait for the request to timeout
         :return: None
         """
         self.p12_path = p12_path
+        self.p12_buffer = p12_buffer
         self.endpoint = FURS_PRODUCTION_ENDPOINT if production else FURS_TEST_ENDPOINT
         self.cert = FURS_PRODUCTION_CERT if production else FURS_TEST_CERT
 
@@ -53,7 +55,9 @@ class Connector(object):
         :param p12_password: (string) password for the .p12 file
         :return: None
         """
-        self.p12 = crypto.load_pkcs12(buffer=file(self.p12_path, 'rb').read(), passphrase=p12_password)
+        if self.p12_buffer is None:
+            self.p12_buffer = file(self.p12_path, 'rb').read()
+        self.p12 = crypto.load_pkcs12(buffer=self.p12_buffer, passphrase=p12_password)
         self._store_temp_files()
 
     def _store_temp_files(self):
