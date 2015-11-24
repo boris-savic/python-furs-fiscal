@@ -67,11 +67,11 @@ class Connector(object):
 
         :return: None
         """
-        self.cert_temp = tempfile.NamedTemporaryFile()
+        self.cert_temp = tempfile.NamedTemporaryFile(delete=False)
         self.cert_temp.write(crypto.dump_certificate(crypto.FILETYPE_PEM, self.p12.get_certificate()))
         self.cert_temp.flush()
 
-        self.pkey_temp = tempfile.NamedTemporaryFile()
+        self.pkey_temp = tempfile.NamedTemporaryFile(delete=False)
         self.pkey_temp.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, self.p12.get_privatekey()))
         self.pkey_temp.flush()
 
