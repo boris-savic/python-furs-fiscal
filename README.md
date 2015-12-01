@@ -43,8 +43,11 @@ api.register_immovable_business_premise(tax_number=10039856,
                                         validity_date=datetime.now() - timedelta(days=60),
                                         software_supplier_tax_number=24564444,
                                         foreign_software_supplier_name=None,
-                                        special_notes='')
+                                        special_notes='/')
 ```
+
+**NOTE**: As of 23.11.2015 FURS does require you to send some kind of Special note to them. Empty string will raise
+invalid JSON on their side.
 
 ### Registering Movable Business Premise
 
