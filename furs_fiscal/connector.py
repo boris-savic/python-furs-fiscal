@@ -10,7 +10,7 @@ from jose import jws
 
 
 FURS_TEST_ENDPOINT = 'https://blagajne-test.fu.gov.si:9002'
-FURS_PRODUCTION_ENDPOINT = 'https://blagajne-test.fu.gov.si:9002'
+FURS_PRODUCTION_ENDPOINT = 'https://blagajne.fu.gov.si:9003'
 
 FURS_TEST_CERT = os.path.join(os.path.dirname(__file__), 'certs/test_certificate.pem')
 # TODO add production CERT to certs
