@@ -12,9 +12,10 @@ from jose import jws
 FURS_TEST_ENDPOINT = 'https://blagajne-test.fu.gov.si:9002'
 FURS_PRODUCTION_ENDPOINT = 'https://blagajne.fu.gov.si:9003'
 
-FURS_TEST_CERT = os.path.join(os.path.dirname(__file__), 'certs/test_certificate.pem')
-# TODO add production CERT to certs
-FURS_PRODUCTION_CERT = os.path.join(os.path.dirname(__file__), 'certs/test_certificate.pem')
+# TODO - we should add all the certificates to trusted CA's to make this work.
+# TODO - for now we'll just keep it to verify=False...
+# FURS_TEST_CERT = os.path.join(os.path.dirname(__file__), 'certs/test-tls.cer')
+# FURS_PRODUCTION_CERT = os.path.join(os.path.dirname(__file__), 'certs/blagajne.fu.gov.si.cer')
 
 
 class Connector(object):
@@ -36,7 +37,7 @@ class Connector(object):
         self.p12_path = p12_path
         self.p12_buffer = p12_buffer
         self.endpoint = FURS_PRODUCTION_ENDPOINT if production else FURS_TEST_ENDPOINT
-        self.cert = FURS_PRODUCTION_CERT if production else FURS_TEST_CERT
+        # self.cert = FURS_PRODUCTION_CERT if production else FURS_TEST_CERT
 
         self.p12 = None
         self.cert_temp = None
@@ -44,7 +45,7 @@ class Connector(object):
 
         self.request_timeout = request_timeout
 
-        self.furs_cert = open(self.cert, 'rt').read()
+        # self.furs_cert = open(self.cert, 'rt').read()
         # load certificate...
         self._load_p12(p12_password)
 
@@ -123,7 +124,7 @@ class Connector(object):
         return requests.post(url='%s/%s' % (self.endpoint, path),
                              json=data,
                              cert=(self.cert_temp.name, self.pkey_temp.name),
-                             verify=self.cert,
+                             verify=False,
                              headers=self._prepare_headers(),
                              timeout=self.request_timeout)
 
@@ -143,7 +144,7 @@ class Connector(object):
         return requests.post(url='%s/%s' % (self.endpoint, 'v1/cash_registers/echo'),
                              json=data,
                              cert=(self.cert_temp.name, self.pkey_temp.name),
-                             verify=self.cert,
+                             verify=False,
                              headers=self._prepare_headers(),
                              timeout=self.request_timeout)
 
