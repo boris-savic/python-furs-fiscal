@@ -315,10 +315,10 @@ class FURSInvoiceAPI(FURSBaseAPI):
             message['InvoiceRequest']['Invoice']['OperatorTaxNumber'] = operator_tax_number
 
         if foreign_operator:
-            message['InvoiceRequest']['Invoice']['ForeignOperator'] = 1
+            message['InvoiceRequest']['Invoice']['ForeignOperator'] = True
 
         if subsequent_submit:
-            message['InvoiceRequest']['Invoice']['SubsequentSubmit'] = 1
+            message['InvoiceRequest']['Invoice']['SubsequentSubmit'] = True
 
         if reference_invoice_number:
             reference_invoice = [{
