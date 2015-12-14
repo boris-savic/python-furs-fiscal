@@ -306,7 +306,7 @@ class FURSInvoiceAPI(FURSBaseAPI):
         message['InvoiceRequest']['Invoice']['TaxesPerSeller'].append(tax_spec)
 
         if customer_vat_number:
-            message['InvoiceRequest']['Invoice']['CustomerTaxNumber'] = customer_vat_number
+            message['InvoiceRequest']['Invoice']['CustomerVATNumber'] = customer_vat_number
 
         if returns_amount:
             message['InvoiceRequest']['Invoice']['ReturnsAmount'] = returns_amount
