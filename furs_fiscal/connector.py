@@ -12,6 +12,11 @@ from jose import jws
 FURS_TEST_ENDPOINT = 'https://blagajne-test.fu.gov.si:9002'
 FURS_PRODUCTION_ENDPOINT = 'https://blagajne.fu.gov.si:9003'
 
+PROXY = {
+    "http": "http://localhost:3128",
+    "https": "http://localhost:3128",
+}
+
 # TODO - we should add all the certificates to trusted CA's to make this work.
 # TODO - for now we'll just keep it to verify=False...
 # FURS_TEST_CERT = os.path.join(os.path.dirname(__file__), 'certs/test-tls.cer')
@@ -126,7 +131,8 @@ class Connector(object):
                              cert=(self.cert_temp.name, self.pkey_temp.name),
                              verify=False,
                              headers=self._prepare_headers(),
-                             timeout=self.request_timeout)
+                             timeout=self.request_timeout,
+                             proxies=PROXY)
 
     def send_echo(self, message='ping'):
         """
