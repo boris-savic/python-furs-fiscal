@@ -8,12 +8,13 @@ from exceptions import ConnectionException, ConnectionTimedOutException, FURSExc
 
 
 class FURSBaseAPI(object):
-    def __init__(self, p12_path, p12_password, p12_buffer=None, production=True, request_timeout=2.0):
+    def __init__(self, p12_path, p12_password, p12_buffer=None, production=True, request_timeout=2.0, proxy=None):
         self.connector = Connector(p12_path=p12_path,
                                    p12_password=p12_password,
                                    p12_buffer=p12_buffer,
                                    production=production,
-                                   request_timeout=request_timeout)
+                                   request_timeout=request_timeout,
+                                   proxy=proxy)
 
     def is_server_accessible(self):
         """
