@@ -23,7 +23,7 @@ class Connector(object):
     Connector performs all the communication with the FURS server.
 
     """
-    def __init__(self, p12_path, p12_password, p12_buffer=None, production=True, request_timeout=2):
+    def __init__(self, p12_path, p12_password, p12_buffer=None, production=True, request_timeout=2, proxy=None):
         """
         Initializes and loads certs to memory.
 
@@ -32,6 +32,7 @@ class Connector(object):
         :param p12_buffer: (string) Buffer of the .p12 file
         :param production: (boolean) Should we use FURS Production server of Test server
         :param request_timeout: (float) How long should we wait for the request to timeout
+        :param proxy: (dict) Specify proxy details if you need one, for example: {"http": "http://localhost:3128", "https": "http://localhost:3128"}
         :return: None
         """
         self.p12_path = p12_path
@@ -44,6 +45,8 @@ class Connector(object):
         self.pkey_temp = None
 
         self.request_timeout = request_timeout
+
+        self.proxy = proxy
 
         # self.furs_cert = open(self.cert, 'rt').read()
         # load certificate...
@@ -126,7 +129,8 @@ class Connector(object):
                              cert=(self.cert_temp.name, self.pkey_temp.name),
                              verify=False,
                              headers=self._prepare_headers(),
-                             timeout=self.request_timeout)
+                             timeout=self.request_timeout,
+                             proxies=self.proxy)
 
     def send_echo(self, message='ping'):
         """
@@ -146,7 +150,8 @@ class Connector(object):
                              cert=(self.cert_temp.name, self.pkey_temp.name),
                              verify=False,
                              headers=self._prepare_headers(),
-                             timeout=self.request_timeout)
+                             timeout=self.request_timeout,
+                             proxies=self.proxy)
 
     def _prepare_headers(self):
         """
