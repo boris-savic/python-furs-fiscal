@@ -179,6 +179,7 @@ class FURSInvoiceAPI(FURSBaseAPI):
         FURSBaseAPI.__init__(self, *args, **kwargs)
         self.low_tax_rate = low_tax_rate
         self.high_tax_rate = high_tax_rate
+        self.zero_tax_rate = 0.0
 
     def calculate_zoi(self,
                       tax_number,
@@ -229,6 +230,7 @@ class FURSInvoiceAPI(FURSBaseAPI):
                         business_premise_id,
                         electronic_device_id,
                         invoice_amount,
+                        zero_tax_rate_base=None,
                         low_tax_rate_base=None,
                         low_tax_rate_amount=None,
                         high_tax_rate_base=None,
@@ -289,7 +291,8 @@ class FURSInvoiceAPI(FURSBaseAPI):
         tax_spec = {}
         # add tax specification
         if low_tax_rate_base or high_tax_rate_base:
-            tax_spec['VAT'] = self._build_tax_specification(low_tax_rate_base=low_tax_rate_base,
+            tax_spec['VAT'] = self._build_tax_specification(zero_tax_rate_base=zero_tax_rate_base,
+                                                            low_tax_rate_base=low_tax_rate_base,
                                                             low_tax_rate_amount=low_tax_rate_amount,
                                                             high_tax_rate_base=high_tax_rate_base,
                                                             high_tax_rate_amount=high_tax_rate_amount)
@@ -337,6 +340,7 @@ class FURSInvoiceAPI(FURSBaseAPI):
         return response['InvoiceResponse']['UniqueInvoiceID']
 
     def _build_tax_specification(self,
+                                 zero_tax_rate_base,
                                  low_tax_rate_base,
                                  low_tax_rate_amount,
                                  high_tax_rate_base,
@@ -344,6 +348,7 @@ class FURSInvoiceAPI(FURSBaseAPI):
         """
         Build the TaxesPerSeller part of the request
 
+        :param zero_tax_rate_base:
         :param low_tax_rate_base:
         :param low_tax_rate_amount:
         :param high_tax_rate_base:
@@ -362,7 +367,13 @@ class FURSInvoiceAPI(FURSBaseAPI):
             'TaxAmount': high_tax_rate_amount
         }
 
-        return filter(lambda x: x['TaxableAmount'] is not None, [low_tax_spec, high_tax_spec])
+        zero_tax_rate_spec = {
+            'TaxRate': self.zero_tax_rate,
+            'TaxableAmount': zero_tax_rate_base,
+            'TaxAmount': 0.0
+        }
+
+        return filter(lambda x: x['TaxableAmount'] is not None, [low_tax_spec, high_tax_spec, zero_tax_rate_spec])
 
 
     @staticmethod
