@@ -327,7 +327,7 @@ class FURSInvoiceAPI(FURSBaseAPI):
                     'ElectronicDeviceID': reference_invoice_electronic_device_id,
                     'InvoiceNumber': reference_invoice_number
                 },
-                'ReferenceInvoiceIssueDateTime': reference_invoice_issued_date.strftime("%Y-%m-%dT%H:%M:%S")
+                'ReferenceInvoiceIssueDateTime': reference_invoice_issued_date.strftime("%Y-%m-%dT%H:%M:%SZ")
             }]
 
             message['InvoiceRequest']['Invoice']['ReferenceInvoice'] = reference_invoice
@@ -369,7 +369,7 @@ class FURSInvoiceAPI(FURSBaseAPI):
     def _prepare_invoice_request_header():
         header = {
             "MessageID": str(uuid.uuid4()),
-            "DateTime": datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+            "DateTime": datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
         }
 
         return header
@@ -381,7 +381,7 @@ class FURSInvoiceAPI(FURSBaseAPI):
             'Header': FURSInvoiceAPI._prepare_invoice_request_header(),
             'Invoice': {
                 'TaxNumber': kwargs['tax_number'],
-                'IssueDateTime': kwargs['issued_date'].strftime("%Y-%m-%dT%H:%M:%S"),
+                'IssueDateTime': kwargs['issued_date'].strftime("%Y-%m-%dT%H:%M:%SZ"),
                 'NumberingStructure': kwargs['numbering_structure'],
                 'InvoiceIdentifier': {
                     'BusinessPremiseID': kwargs['business_premise_id'],
