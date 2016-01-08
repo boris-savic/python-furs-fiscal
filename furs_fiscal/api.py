@@ -373,7 +373,7 @@ class FURSInvoiceAPI(FURSBaseAPI):
     def _prepare_invoice_request_header():
         header = {
             "MessageID": str(uuid.uuid4()),
-            "DateTime": datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+            "DateTime": datetime.datetime.now(pytz.UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
         }
 
         return header
