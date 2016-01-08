@@ -1,3 +1,5 @@
+import pytz
+
 from datetime import datetime
 from decimal import Decimal
 
@@ -31,7 +33,7 @@ class InvoiceDemo():
                              production=False,
                              request_timeout=1.0)
 
-        date_issued = datetime.now()
+        date_issued = datetime.now(tz=pytz.UTC)
         # let's get that ZOI
         zoi = api.calculate_zoi(tax_number=10039856,  # Issuer Tax Number
                                 issued_date=date_issued,  # DateTime of the Invoice

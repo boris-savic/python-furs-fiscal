@@ -1,3 +1,4 @@
+import pytz
 import hashlib
 import uuid
 import datetime
@@ -204,7 +205,7 @@ class FURSInvoiceAPI(FURSBaseAPI):
 
         return hashlib.md5(self._sign(content=content)).hexdigest()
 
-    def prepare_printable(self, tax_number, zoi, issued_date):
+    def prepare_printable(self, tax_number, zoi, issued_date, timezone='Europe/Ljubljana'):
         """
         Get Data Record for QR Code/Code 128/PDF417 that should be placed at the bottom of the Invoice.
 
@@ -213,7 +214,11 @@ class FURSInvoiceAPI(FURSBaseAPI):
         :param issued_date:
         :return: (string) Data Record
         """
-        zoi_base10 = str(int(zoi, 16))
+        if issued_date.tzinfo:
+            tz = pytz.timezone(timezone)
+            issued_date = issued_date.astimezone(tz)
+
+        zoi_base10 = str(int(zoi, 16)).zfill(39)
         date_str = issued_date.strftime('%y%m%d%H%M%S')
 
         data = zoi_base10+str(tax_number)+date_str
@@ -363,7 +368,6 @@ class FURSInvoiceAPI(FURSBaseAPI):
         }
 
         return filter(lambda x: x['TaxableAmount'] is not None, [low_tax_spec, high_tax_spec])
-
 
     @staticmethod
     def _prepare_invoice_request_header():

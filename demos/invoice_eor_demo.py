@@ -1,6 +1,7 @@
+import pytz
+
 from datetime import datetime
 from decimal import Decimal
-import pytz
 
 from furs_fiscal.api import FURSInvoiceAPI
 
