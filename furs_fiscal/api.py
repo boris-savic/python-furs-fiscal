@@ -36,7 +36,8 @@ class FURSBusinessPremiseAPI(FURSBaseAPI):
                                             validity_date,
                                             software_supplier_tax_number=None,
                                             foreign_software_supplier_name=None,
-                                            special_notes='No notes'):
+                                            special_notes='No notes',
+                                            close=False):
         """
         Register immovable business premise to FURS.
 
@@ -57,6 +58,7 @@ class FURSBusinessPremiseAPI(FURSBaseAPI):
         :param foreign_software_supplier_name: (int) If software supplier is foreign company - does not have
                                                      Slovenian Tax number, then please provide provider name.
         :param special_notes: (string) If you need to send any special notes to FURS. Default is ""
+        :param close (boolean), If you want to close business unit. Default is False
         :return: boolean: Will return True if success or raise an Exception if anything goes wrong
 
         :raises
@@ -99,7 +101,8 @@ class FURSBusinessPremiseAPI(FURSBaseAPI):
                                           validity_date,
                                           software_supplier_tax_number=None,
                                           foreign_software_supplier_name=None,
-                                          special_notes='No notes'):
+                                          special_notes='No notes',
+                                          close=True):
         """
         Register movable business unit to FURS.
 
@@ -112,6 +115,7 @@ class FURSBusinessPremiseAPI(FURSBaseAPI):
         :param foreign_software_supplier_name: (int) If software supplier is foreign company - does not have
                                                      Slovenian Tax number, then please provide provider name.
         :param special_notes: (string) If you need to send any special notes to FURS. Default is ""
+        :param close (boolean), If you want to close business unit. Default is False
         :return: boolean: Will return True if success or raise an Exception if anything goes wrong
 
         :raises
@@ -161,6 +165,8 @@ class FURSBusinessPremiseAPI(FURSBaseAPI):
                 'BPIdentifier': {}
             }
         }
+        if kwargs.get('close', False):
+            data['BusinessPremiseRequest']['BusinessPremise']['ClosingTag'] = 'Z'
 
         return data
 
