@@ -34,7 +34,7 @@ class SalesBookInvoiceEORDemo():
         eor = api.get_sales_book_invoice_eor(tax_number=10039856,
                                   issued_date=date_issued,
                                   invoice_number='612',
-                                  business_premise_id='BP101',
+                                  business_premise_id='BP105',
                                   set_number='03',
                                   serial_number='5001-0001018',
                                   invoice_amount=66.71,
