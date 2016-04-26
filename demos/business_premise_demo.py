@@ -15,7 +15,7 @@ class BusinessPremiseDemo():
         """
         We will register a following business premise
 
-        Name: BP101
+        Name: BP105
         Address: Trzaska cesta 24A, Ljubljana, 1000 Ljubljana
 
         """
@@ -28,7 +28,7 @@ class BusinessPremiseDemo():
 
         # Registering business unit is easy ...
         s = api.register_immovable_business_premise(tax_number=10039856,  # TaxNumber of our Company
-                                                    premise_id='BP101',  # Name of our Business Premise - printed on Invoice
+                                                    premise_id='BP105',  # Name of our Business Premise - printed on Invoice
                                                     real_estate_cadastral_number=112,  # Cadastral data
                                                     real_estate_building_number=11,  # Cadastral data
                                                     real_estate_building_section_number=1,  # Cadastral data
@@ -42,7 +42,7 @@ class BusinessPremiseDemo():
                                                     software_supplier_tax_number=24564444,  # TaxNumber of SW Supplier
                                                     foreign_software_supplier_name=None,  # If SW Supplier does not have Slovenian Tax Number pass in the supplier name
                                                     special_notes='No notes',
-                                                    close=True)  # If you want to add a special note for FURS. Generaly just leave empty
+                                                    close=False)  # If you want to add a special note for FURS. Generaly just leave empty
 
         if s:
             print("Immovable Success!")

@@ -406,3 +406,139 @@ class FURSInvoiceAPI(FURSBaseAPI):
         }
 
         return data
+
+
+    def get_sales_book_invoice_eor(self,
+                        tax_number,
+                        issued_date,
+                        invoice_number,
+                        business_premise_id,
+                        set_number,
+                        serial_number,
+                        invoice_amount,
+                        low_tax_rate_base=None,
+                        low_tax_rate_amount=None,
+                        high_tax_rate_base=None,
+                        high_tax_rate_amount=None,
+                        other_taxes_amount=None,
+                        exempt_vat_taxable_amount=None,
+                        reverse_vat_taxable_amount=None,
+                        non_taxable_amount=None,
+                        special_tax_rules_amount=None,
+                        payment_amount=None,
+                        customer_vat_number=None,
+                        returns_amount=None,
+                        operator_tax_number=None,
+                        reference_invoice_number=None,
+                        reference_invoice_business_premise_id=None,
+                        reference_invoice_electronic_device_id=None,
+                        reference_invoice_issued_date=None,
+                        reference_sales_book_number=None,
+                        reference_sales_book_issued_date=None,
+                        special_notes=''):
+        """
+        Obtain EOR from FURS. Will build the request and call the FURS API.
+
+        :param tax_number:
+        :param issued_date:
+        :param invoice_number:
+        :param business_premise_id:
+        :param set_number:
+        :param serial_number:
+        :param invoice_amount:
+        :param low_tax_rate_base:
+        :param low_tax_rate_amount:
+        :param high_tax_rate_base:
+        :param high_tax_rate_amount:
+        :param other_taxes_amount:
+        :param exempt_vat_taxable_amount:
+        :param reverse_vat_taxable_amount:
+        :param non_taxable_amount:
+        :param special_tax_rules_amount:
+        :param payment_amount:
+        :param customer_vat_number:
+        :param returns_amount:
+        :param operator_tax_number: (int) - Tax number of the register operator
+        :param reference_invoice_number: (string) - Required if we're issuing Storno
+        :param reference_invoice_business_premise_id: (string) - Required if we're issuing Storno
+        :param reference_invoice_electronic_device_id: (string) - Required if we're issuing Storno
+        :param reference_invoice_issued_date: (datetime) - Required if we're issuing Storno
+        :param special_notes:
+        :return: eor (string) - Invoice UniqueID from FURS
+        """
+        # build the base message body
+        message = self._build_common_sales_book_message_body(**locals())
+
+        tax_spec = {'SellerTaxNumber': operator_tax_number}
+        # add tax specification
+        if low_tax_rate_base or high_tax_rate_base:
+            tax_spec['VAT'] = self._build_tax_specification(low_tax_rate_base=low_tax_rate_base,
+                                                            low_tax_rate_amount=low_tax_rate_amount,
+                                                            high_tax_rate_base=high_tax_rate_base,
+                                                            high_tax_rate_amount=high_tax_rate_amount)
+
+        if non_taxable_amount:
+            tax_spec['NontaxableAmount'] = non_taxable_amount
+        if reverse_vat_taxable_amount:
+            tax_spec['ReverseVATTaxableAmount'] = reverse_vat_taxable_amount
+        if exempt_vat_taxable_amount:
+            tax_spec['ExemptVATTaxableAmount'] = exempt_vat_taxable_amount
+        if other_taxes_amount:
+            tax_spec['OtherTaxesAmount'] = other_taxes_amount
+
+        message['InvoiceRequest']['SalesBookInvoice']['TaxesPerSeller'].append(tax_spec)
+
+        if customer_vat_number:
+            message['InvoiceRequest']['SalesBookInvoice']['CustomerVATNumber'] = customer_vat_number
+
+        if returns_amount:
+            message['InvoiceRequest']['SalesBookInvoice']['ReturnsAmount'] = returns_amount
+
+
+        if reference_invoice_number:
+            reference_invoice = [{
+                'ReferenceInvoiceIdentifier': {
+                    'BusinessPremiseID': reference_invoice_business_premise_id,
+                    'ElectronicDeviceID': reference_invoice_electronic_device_id,
+                    'InvoiceNumber': reference_invoice_number
+                },
+                'ReferenceInvoiceIssueDateTime': reference_invoice_issued_date.strftime("%Y-%m-%dT%H:%M:%SZ")
+            }]
+            message['InvoiceRequest']['SalesBookInvoice']['ReferenceInvoice'] = reference_invoice
+
+        if reference_sales_book_number:
+            reference_sales_book = [{
+                'ReferenceSalesBook': {
+                    'ReferenceSalesBookIdentifier': reference_sales_book_number,
+                    'ReferenceSalesBookIssueDate': reference_sales_book_issued_date,
+                },
+                'ReferenceInvoiceIssueDateTime': reference_invoice_issued_date.strftime("%Y-%m-%dT%H:%M:%SZ")
+            }]
+            message['InvoiceRequest']['SalesBookInvoice']['ReferenceSalesBook'] = reference_sales_book
+
+        response = self._send_request(path=INVOICE_ISSUE_PATH, data=message)
+
+        return response['InvoiceResponse']['UniqueInvoiceID']
+
+
+    @staticmethod
+    def _build_common_sales_book_message_body(*args, **kwargs):
+        data = dict()
+        data['InvoiceRequest'] = {
+            'Header': FURSInvoiceAPI._prepare_invoice_request_header(),
+            'SalesBookInvoice': {
+                'TaxNumber': kwargs['tax_number'],
+                'IssueDate': kwargs['issued_date'].strftime("%Y-%m-%d"),
+                'SalesBookIdentifier': {
+                    'InvoiceNumber': kwargs['invoice_number'],
+                    'SetNumber': kwargs['set_number'],
+                    'SerialNumber': kwargs['serial_number'],
+                },
+                'BusinessPremiseID': kwargs['business_premise_id'],
+                'InvoiceAmount': kwargs['invoice_amount'],
+                'PaymentAmount': kwargs['payment_amount'] if kwargs['payment_amount'] else kwargs['invoice_amount'],
+                'TaxesPerSeller': [],
+            }
+        }
+
+        return data
