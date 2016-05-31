@@ -342,6 +342,7 @@ class FURSInvoiceAPI(FURSBaseAPI):
             }]
 
             message['InvoiceRequest']['Invoice']['ReferenceInvoice'] = reference_invoice
+            message['InvoiceRequest']['Invoice']['SpecialNotes'] = special_notes
 
         response = self._send_request(path=INVOICE_ISSUE_PATH, data=message)
 
