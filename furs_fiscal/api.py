@@ -342,6 +342,7 @@ class FURSInvoiceAPI(FURSBaseAPI):
             }]
 
             message['InvoiceRequest']['Invoice']['ReferenceInvoice'] = reference_invoice
+            message['InvoiceRequest']['Invoice']['SpecialNotes'] = special_notes
 
         response = self._send_request(path=INVOICE_ISSUE_PATH, data=message)
 
@@ -434,6 +435,8 @@ class FURSInvoiceAPI(FURSBaseAPI):
                         reference_invoice_electronic_device_id=None,
                         reference_invoice_issued_date=None,
                         reference_sales_book_number=None,
+                        reference_sales_book_set_number=None,
+                        reference_sales_book_serial_number=None,
                         reference_sales_book_issued_date=None,
                         special_notes=''):
         """
@@ -508,13 +511,15 @@ class FURSInvoiceAPI(FURSBaseAPI):
 
         if reference_sales_book_number:
             reference_sales_book = [{
-                'ReferenceSalesBook': {
-                    'ReferenceSalesBookIdentifier': reference_sales_book_number,
-                    'ReferenceSalesBookIssueDate': reference_sales_book_issued_date,
+                'ReferenceSalesBookIdentifier': {
+                    'InvoiceNumber': reference_sales_book_number,
+                    'SetNumber': reference_sales_book_set_number,
+                    'SerialNumber': reference_sales_book_serial_number
                 },
-                'ReferenceInvoiceIssueDateTime': reference_invoice_issued_date.strftime("%Y-%m-%dT%H:%M:%SZ")
+                'ReferenceSalesBookIssueDate': reference_sales_book_issued_date.isoformat()
             }]
             message['InvoiceRequest']['SalesBookInvoice']['ReferenceSalesBook'] = reference_sales_book
+            message['InvoiceRequest']['SalesBookInvoice']['SpecialNotes'] = special_notes
 
         response = self._send_request(path=INVOICE_ISSUE_PATH, data=message)
 
