@@ -1,10 +1,6 @@
-import os
-import urllib3.contrib.pyopenssl
-urllib3.contrib.pyopenssl.inject_into_urllib3()
-
 import tempfile
 import requests
-
+requests.packages.urllib3.disable_warnings()
 from OpenSSL import crypto
 from jose import jws
 
@@ -105,7 +101,7 @@ class Connector(object):
         """
         secret = crypto.dump_privatekey(crypto.FILETYPE_PEM, self.p12.get_privatekey())
 
-        return jws.sign(claims=payload,
+        return jws.sign(payload,
                         key=secret,
                         headers=header,
                         algorithm=algorithm)

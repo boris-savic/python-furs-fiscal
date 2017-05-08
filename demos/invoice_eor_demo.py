@@ -7,7 +7,7 @@ from furs_fiscal.api import FURSInvoiceAPI
 
 
 # Path to our .p12 cert file
-P12_CERT_PATH = 'demo_podjetje.p12'
+P12_CERT_PATH = 'demos/demo_podjetje.p12'
 # Password for out .p12 cert file
 P12_CERT_PASS = 'Geslo123#'
 
@@ -30,7 +30,7 @@ class InvoiceEORDemo():
         zoi = api.calculate_zoi(tax_number=10039856,  # Issuer Tax Number
                                 issued_date=date_issued,  # DateTime of the Invoice
                                 invoice_number='11',  # Invoice Number - Sequential
-                                business_premise_id='BP101',  # Business premise ID
+                                business_premise_id='BP105',  # Business premise ID
                                 electronic_device_id='B1',  # Electronic Device ID
                                 invoice_amount=Decimal('19.15'))  # Invoice Amount
 
@@ -41,7 +41,7 @@ class InvoiceEORDemo():
                                   tax_number=10039856,
                                   issued_date=date_issued,
                                   invoice_number='11',
-                                  business_premise_id='BP101',
+                                  business_premise_id='BP105',
                                   electronic_device_id='B1',
                                   invoice_amount=66.71,
                                   low_tax_rate_base=35.14,

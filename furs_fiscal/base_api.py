@@ -3,8 +3,8 @@ from OpenSSL import crypto
 from requests.exceptions import Timeout
 from requests import codes
 
-from connector import Connector
-from exceptions import ConnectionException, ConnectionTimedOutException, FURSException
+from furs_fiscal.connector import Connector
+from furs_fiscal.exceptions import ConnectionException, ConnectionTimedOutException, FURSException
 
 
 class FURSBaseAPI(object):
@@ -47,7 +47,6 @@ class FURSBaseAPI(object):
             if response.status_code == codes.ok:
                 # TODO - we should verify server signature!
                 server_response = jws.get_unverified_claims(response.json()['token'])
-
                 return self._check_for_errors(server_response)
             else:
                 raise ConnectionException(code=response.status_code,

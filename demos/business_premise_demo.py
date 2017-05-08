@@ -4,7 +4,7 @@ from furs_fiscal.api import FURSBusinessPremiseAPI, TYPE_MOVABLE_PREMISE_A
 
 
 # Path to our .p12 cert file
-P12_CERT_PATH = 'demo_podjetje.p12'
+P12_CERT_PATH = 'demos/demo_podjetje.p12'
 # Password for out .p12 cert file
 P12_CERT_PASS = 'Geslo123#'
 
@@ -38,7 +38,7 @@ class BusinessPremiseDemo():
                                                     community='Ljubljana',  # This is actually the city name...
                                                     city='Ljubljana',  # Name of the Post Office
                                                     postal_code='1000',  # Postal code
-                                                    validity_date=datetime.now() - timedelta(days=60),  # Date when we opened premise
+                                                    validity_date=datetime.now() - timedelta(days=360),  # Date when we opened premise
                                                     software_supplier_tax_number=24564444,  # TaxNumber of SW Supplier
                                                     foreign_software_supplier_name=None,  # If SW Supplier does not have Slovenian Tax Number pass in the supplier name
                                                     special_notes='No notes',
@@ -65,7 +65,7 @@ class BusinessPremiseDemo():
 
         # Registering business unit is easy ...
         s = api.register_movable_business_premise(tax_number=10039856,  # TaxNumber of our Company
-                                                  premise_id='BP101',  # Name of our Business Premise - printed on Invoice
+                                                  premise_id='BP105',  # Name of our Business Premise - printed on Invoice
                                                   movable_type=TYPE_MOVABLE_PREMISE_A,
                                                   validity_date=datetime.now() - timedelta(days=60),  # Date when we opened premise
                                                   software_supplier_tax_number=24564444,  # TaxNumber of SW Supplier

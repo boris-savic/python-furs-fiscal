@@ -102,7 +102,7 @@ class FURSBusinessPremiseAPI(FURSBaseAPI):
                                           software_supplier_tax_number=None,
                                           foreign_software_supplier_name=None,
                                           special_notes='No notes',
-                                          close=True):
+                                          close=False):
         """
         Register movable business unit to FURS.
 
