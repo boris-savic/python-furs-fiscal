@@ -3,7 +3,7 @@ import hashlib
 import uuid
 import datetime
 
-from base_api import FURSBaseAPI
+from furs_fiscal.base_api import FURSBaseAPI
 
 
 TYPE_MOVABLE_PREMISE_A = 'A'
@@ -374,7 +374,7 @@ class FURSInvoiceAPI(FURSBaseAPI):
             'TaxAmount': high_tax_rate_amount
         }
 
-        return filter(lambda x: x['TaxableAmount'] is not None, [low_tax_spec, high_tax_spec])
+        return list(filter(lambda x: x['TaxableAmount'] is not None, [low_tax_spec, high_tax_spec]))
 
     @staticmethod
     def _prepare_invoice_request_header():

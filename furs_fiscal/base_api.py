@@ -64,7 +64,7 @@ class FURSBaseAPI(object):
         :raises
             FURSException: If response contains error
         """
-        if server_response[server_response.keys()[0]].get('Error', None):
+        if server_response[list(server_response.keys())[0]].get('Error', None):
             raise FURSException(code=server_response[server_response.keys()[0]]['Error']['ErrorCode'],
                                 message=server_response[server_response.keys()[0]]['Error']['ErrorMessage'])
 

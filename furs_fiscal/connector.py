@@ -1,9 +1,9 @@
 import tempfile
 import requests
-requests.packages.urllib3.disable_warnings()
 from OpenSSL import crypto
 from jose import jws
 
+requests.packages.urllib3.disable_warnings()
 
 FURS_TEST_ENDPOINT = 'https://blagajne-test.fu.gov.si:9002'
 FURS_PRODUCTION_ENDPOINT = 'https://blagajne.fu.gov.si:9003'
@@ -56,7 +56,7 @@ class Connector(object):
         :return: None
         """
         if self.p12_buffer is None:
-            self.p12_buffer = file(self.p12_path, 'rb').read()
+            self.p12_buffer = open(self.p12_path, 'rb').read()
         self.p12 = crypto.load_pkcs12(buffer=self.p12_buffer, passphrase=p12_password)
         self._store_temp_files()
 
@@ -83,8 +83,8 @@ class Connector(object):
         """
         jws_header = {
             'alg': 'RS256',
-            'subject_name': ",".join(["=".join(tpl) for tpl in self.p12.get_certificate().get_subject().get_components()]),
-            'issuer_name': ",".join(["=".join(tpl) for tpl in self.p12.get_certificate().get_issuer().get_components()]),
+            'subject_name': ",".join(["=".join(str(tpl)) for tpl in self.p12.get_certificate().get_subject().get_components()]),
+            'issuer_name': ",".join(["=".join(str(tpl)) for tpl in self.p12.get_certificate().get_issuer().get_components()]),
             'serial': self.p12.get_certificate().get_serial_number()
         }
 
@@ -99,8 +99,7 @@ class Connector(object):
         :param algorithm: (string) which algorithm to use. Default: 'RS256'
         :return: (string) Signed base64 encoded content
         """
-        secret = crypto.dump_privatekey(crypto.FILETYPE_PEM, self.p12.get_privatekey())
-
+        secret = crypto.dump_privatekey(crypto.FILETYPE_PEM, self.p12.get_privatekey()).decode("utf-8")
         return jws.sign(payload,
                         key=secret,
                         headers=header,
