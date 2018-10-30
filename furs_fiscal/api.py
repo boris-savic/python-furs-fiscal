@@ -332,16 +332,28 @@ class FURSInvoiceAPI(FURSBaseAPI):
             message['InvoiceRequest']['Invoice']['SubsequentSubmit'] = True
 
         if reference_invoice_number:
-            reference_invoice = [{
-                'ReferenceInvoiceIdentifier': {
-                    'BusinessPremiseID': reference_invoice_business_premise_id,
-                    'ElectronicDeviceID': reference_invoice_electronic_device_id,
-                    'InvoiceNumber': reference_invoice_number
-                },
-                'ReferenceInvoiceIssueDateTime': reference_invoice_issued_date.strftime("%Y-%m-%dT%H:%M:%SZ")
-            }]
+            reference_invoices = []
+            if isinstance(reference_invoice_number, list):
+                for i in range(0, len(reference_invoice_number)):
+                    reference_invoices.append({
+                        'ReferenceInvoiceIdentifier': {
+                            'BusinessPremiseID': reference_invoice_business_premise_id[i],
+                            'ElectronicDeviceID': reference_invoice_electronic_device_id[i],
+                            'InvoiceNumber': reference_invoice_number[i]
+                        },
+                        'ReferenceInvoiceIssueDateTime': reference_invoice_issued_date[i].strftime("%Y-%m-%dT%H:%M:%SZ")
+                    })
+            else:
+                reference_invoices.append({
+                    'ReferenceInvoiceIdentifier': {
+                        'BusinessPremiseID': reference_invoice_business_premise_id,
+                        'ElectronicDeviceID': reference_invoice_electronic_device_id,
+                        'InvoiceNumber': reference_invoice_number
+                    },
+                    'ReferenceInvoiceIssueDateTime': reference_invoice_issued_date.strftime("%Y-%m-%dT%H:%M:%SZ")
+                })
 
-            message['InvoiceRequest']['Invoice']['ReferenceInvoice'] = reference_invoice
+            message['InvoiceRequest']['Invoice']['ReferenceInvoice'] = reference_invoices
             message['InvoiceRequest']['Invoice']['SpecialNotes'] = special_notes
 
         response = self._send_request(path=INVOICE_ISSUE_PATH, data=message)
