@@ -13,9 +13,9 @@ setup(
   classifiers = [],
   package_data={'furs_fiscal': ['certs/*.pem']},
   install_requires=[
-        'pytz==2017.2',
-        'requests==2.13.0',
-        'python-jose==0.5.6',
-        'pyOpenSSL==17.0.0',
+        'pytz>=2017.2',
+        'requests>=2.20.0',
+        'python-jose==3.0.1',
+        'pyOpenSSL>=17.5.0',
     ]
 )
