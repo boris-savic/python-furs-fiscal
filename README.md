@@ -117,6 +117,22 @@ To obtain FURS EOR code - UniqueID, you'll have to call the following method. It
 for issuing invoice storno and special tax rules. Please read the full documentation.
 
 ```python
+# In most cases there will be just one seller - company that issues the invoice
+# For some cases - you may need to include more sellers. In that case
+#                  do not forget to set seller_tax_number for the other sellers.
+#                  you don't need to set it for your company - but you do for others.
+seller_one = TaxesPerSeller(other_taxes_amount=None,
+                                  exempt_vat_taxable_amount=None,
+                                  reverse_vat_taxable_amount=None,
+                                  non_taxable_amount=None,
+                                  special_tax_rules_amount=None,
+                                  seller_tax_number=None)
+
+seller_one.add_vat_amount(tax_rate=22, tax_base=23.14, tax_amount=5.09)
+seller_one.add_vat_amount(tax_rate=9.5, tax_base=35.14, tax_amount=3.34)
+# 5% vat - for books etc...
+seller_one.add_vat_amount(tax_rate=5, tax_base=10, tax_amount=0.5)
+
 eor = api.get_invoice_eor(zoi=zoi,
                           tax_number=10039856,
                           issued_date=date_issued,
@@ -124,10 +140,7 @@ eor = api.get_invoice_eor(zoi=zoi,
                           business_premise_id='BP101',
                           electronic_device_id='B1',
                           invoice_amount=66.71,
-                          low_tax_rate_base=35.14,
-                          low_tax_rate_amount=3.34,
-                          high_tax_rate_base=23.14,
-                          high_tax_rate_amount=5.09,
+                          taxes_per_seller=[seller_one],  # NOTE: Must be an array of TaxesPerSeller objects
                           operator_tax_number=12345678)
 ```
 

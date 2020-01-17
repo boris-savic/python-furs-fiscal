@@ -171,6 +171,52 @@ class FURSBusinessPremiseAPI(FURSBaseAPI):
         return data
 
 
+class TaxesPerSeller:
+    def __init__(self,
+                 other_taxes_amount=None,
+                 exempt_vat_taxable_amount=None,
+                 reverse_vat_taxable_amount=None,
+                 non_taxable_amount=None,
+                 special_tax_rules_amount=None,
+                 seller_tax_number=None):
+        self.other_taxes_amount = other_taxes_amount
+        self.exempt_vat_taxable_amount = exempt_vat_taxable_amount
+        self.reverse_vat_taxable_amount = reverse_vat_taxable_amount
+        self.non_taxable_amount = non_taxable_amount
+        self.special_tax_rules_amount = special_tax_rules_amount
+        self.seller_tax_number = seller_tax_number
+
+        self.vat_amounts = []
+
+    def add_vat_amount(self, tax_rate, tax_base, tax_amount):
+        vat_amount = {
+            'TaxRate': tax_rate,
+            'TaxableAmount': tax_base,
+            'TaxAmount': tax_amount
+        }
+
+        self.vat_amounts.append(vat_amount)
+
+    def build_json(self):
+        tax_spec = {
+            'VAT': self.vat_amounts,
+        }
+
+        if self.non_taxable_amount:
+            tax_spec['NontaxableAmount'] = self.non_taxable_amount
+        if self.reverse_vat_taxable_amount:
+            tax_spec['ReverseVATTaxableAmount'] = self.reverse_vat_taxable_amount
+        if self.exempt_vat_taxable_amount:
+            tax_spec['ExemptVATTaxableAmount'] = self.exempt_vat_taxable_amount
+        if self.other_taxes_amount:
+            tax_spec['OtherTaxesAmount'] = self.other_taxes_amount
+
+        if self.seller_tax_number:
+            tax_spec['SellerTaxNumber'] = self.seller_tax_number
+
+        return tax_spec
+
+
 class FURSInvoiceAPI(FURSBaseAPI):
 
     def __init__(self, low_tax_rate=9.5, high_tax_rate=22, *args, **kwargs):
@@ -240,15 +286,7 @@ class FURSInvoiceAPI(FURSBaseAPI):
                         business_premise_id,
                         electronic_device_id,
                         invoice_amount,
-                        low_tax_rate_base=None,
-                        low_tax_rate_amount=None,
-                        high_tax_rate_base=None,
-                        high_tax_rate_amount=None,
-                        other_taxes_amount=None,
-                        exempt_vat_taxable_amount=None,
-                        reverse_vat_taxable_amount=None,
-                        non_taxable_amount=None,
-                        special_tax_rules_amount=None,
+                        taxes_per_seller=[],
                         payment_amount=None,
                         customer_vat_number=None,
                         returns_amount=None,
@@ -271,15 +309,7 @@ class FURSInvoiceAPI(FURSBaseAPI):
         :param business_premise_id:
         :param electronic_device_id:
         :param invoice_amount:
-        :param low_tax_rate_base:
-        :param low_tax_rate_amount:
-        :param high_tax_rate_base:
-        :param high_tax_rate_amount:
-        :param other_taxes_amount:
-        :param exempt_vat_taxable_amount:
-        :param reverse_vat_taxable_amount:
-        :param non_taxable_amount:
-        :param special_tax_rules_amount:
+        :param taxes_per_seller: (list) - List of TaxesPerSeller objects
         :param payment_amount:
         :param customer_vat_number:
         :param returns_amount:
@@ -297,24 +327,15 @@ class FURSInvoiceAPI(FURSBaseAPI):
         # build the base message body
         message = self._build_common_message_body(**locals())
 
-        tax_spec = {}
+        # Validate taxes_per_seller!
+        if type(taxes_per_seller) == TaxesPerSeller:
+            taxes_per_seller = [taxes_per_seller]
+        elif type(taxes_per_seller) != list:
+            raise Exception("Parameter taxes_per_seller should be a list of TaxesPerSeller objects")
+
         # add tax specification
-        if low_tax_rate_base or high_tax_rate_base:
-            tax_spec['VAT'] = self._build_tax_specification(low_tax_rate_base=low_tax_rate_base,
-                                                            low_tax_rate_amount=low_tax_rate_amount,
-                                                            high_tax_rate_base=high_tax_rate_base,
-                                                            high_tax_rate_amount=high_tax_rate_amount)
-
-        if non_taxable_amount:
-            tax_spec['NontaxableAmount'] = non_taxable_amount
-        if reverse_vat_taxable_amount:
-            tax_spec['ReverseVATTaxableAmount'] = reverse_vat_taxable_amount
-        if exempt_vat_taxable_amount:
-            tax_spec['ExemptVATTaxableAmount'] = exempt_vat_taxable_amount
-        if other_taxes_amount:
-            tax_spec['OtherTaxesAmount'] = other_taxes_amount
-
-        message['InvoiceRequest']['Invoice']['TaxesPerSeller'].append(tax_spec)
+        for tax_per_seller in taxes_per_seller:
+            message['InvoiceRequest']['Invoice']['TaxesPerSeller'].append(tax_per_seller.build_json())
 
         if customer_vat_number:
             message['InvoiceRequest']['Invoice']['CustomerVATNumber'] = customer_vat_number
@@ -360,34 +381,6 @@ class FURSInvoiceAPI(FURSBaseAPI):
 
         return response['InvoiceResponse']['UniqueInvoiceID']
 
-    def _build_tax_specification(self,
-                                 low_tax_rate_base,
-                                 low_tax_rate_amount,
-                                 high_tax_rate_base,
-                                 high_tax_rate_amount):
-        """
-        Build the TaxesPerSeller part of the request
-
-        :param low_tax_rate_base:
-        :param low_tax_rate_amount:
-        :param high_tax_rate_base:
-        :param high_tax_rate_amount:
-        :return:
-        """
-        low_tax_spec = {
-            'TaxRate': self.low_tax_rate,
-            'TaxableAmount': low_tax_rate_base,
-            'TaxAmount': low_tax_rate_amount
-        }
-
-        high_tax_spec = {
-            'TaxRate': self.high_tax_rate,
-            'TaxableAmount': high_tax_rate_base,
-            'TaxAmount': high_tax_rate_amount
-        }
-
-        return list(filter(lambda x: x['TaxableAmount'] is not None, [low_tax_spec, high_tax_spec]))
-
     @staticmethod
     def _prepare_invoice_request_header():
         header = {
@@ -422,35 +415,27 @@ class FURSInvoiceAPI(FURSBaseAPI):
 
 
     def get_sales_book_invoice_eor(self,
-                        tax_number,
-                        issued_date,
-                        invoice_number,
-                        business_premise_id,
-                        set_number,
-                        serial_number,
-                        invoice_amount,
-                        low_tax_rate_base=None,
-                        low_tax_rate_amount=None,
-                        high_tax_rate_base=None,
-                        high_tax_rate_amount=None,
-                        other_taxes_amount=None,
-                        exempt_vat_taxable_amount=None,
-                        reverse_vat_taxable_amount=None,
-                        non_taxable_amount=None,
-                        special_tax_rules_amount=None,
-                        payment_amount=None,
-                        customer_vat_number=None,
-                        returns_amount=None,
-                        operator_tax_number=None,
-                        reference_invoice_number=None,
-                        reference_invoice_business_premise_id=None,
-                        reference_invoice_electronic_device_id=None,
-                        reference_invoice_issued_date=None,
-                        reference_sales_book_number=None,
-                        reference_sales_book_set_number=None,
-                        reference_sales_book_serial_number=None,
-                        reference_sales_book_issued_date=None,
-                        special_notes=''):
+                                   tax_number,
+                                   issued_date,
+                                   invoice_number,
+                                   business_premise_id,
+                                   set_number,
+                                   serial_number,
+                                   invoice_amount,
+                                   taxes_per_seller=[],
+                                   payment_amount=None,
+                                   customer_vat_number=None,
+                                   returns_amount=None,
+                                   operator_tax_number=None,
+                                   reference_invoice_number=None,
+                                   reference_invoice_business_premise_id=None,
+                                   reference_invoice_electronic_device_id=None,
+                                   reference_invoice_issued_date=None,
+                                   reference_sales_book_number=None,
+                                   reference_sales_book_set_number=None,
+                                   reference_sales_book_serial_number=None,
+                                   reference_sales_book_issued_date=None,
+                                   special_notes=''):
         """
         Obtain EOR from FURS. Will build the request and call the FURS API.
 
@@ -461,15 +446,7 @@ class FURSInvoiceAPI(FURSBaseAPI):
         :param set_number:
         :param serial_number:
         :param invoice_amount:
-        :param low_tax_rate_base:
-        :param low_tax_rate_amount:
-        :param high_tax_rate_base:
-        :param high_tax_rate_amount:
-        :param other_taxes_amount:
-        :param exempt_vat_taxable_amount:
-        :param reverse_vat_taxable_amount:
-        :param non_taxable_amount:
-        :param special_tax_rules_amount:
+        :param taxes_per_seller: (list) - List of TaxesPerSeller objects
         :param payment_amount:
         :param customer_vat_number:
         :param returns_amount:
@@ -484,31 +461,21 @@ class FURSInvoiceAPI(FURSBaseAPI):
         # build the base message body
         message = self._build_common_sales_book_message_body(**locals())
 
-        tax_spec = {'SellerTaxNumber': operator_tax_number}
+        # Validate taxes_per_seller!
+        if type(taxes_per_seller) == TaxesPerSeller:
+            taxes_per_seller = [taxes_per_seller]
+        elif type(taxes_per_seller) != list:
+            raise Exception("Parameter taxes_per_seller should be a list of TaxesPerSeller objects")
+
         # add tax specification
-        if low_tax_rate_base or high_tax_rate_base:
-            tax_spec['VAT'] = self._build_tax_specification(low_tax_rate_base=low_tax_rate_base,
-                                                            low_tax_rate_amount=low_tax_rate_amount,
-                                                            high_tax_rate_base=high_tax_rate_base,
-                                                            high_tax_rate_amount=high_tax_rate_amount)
-
-        if non_taxable_amount:
-            tax_spec['NontaxableAmount'] = non_taxable_amount
-        if reverse_vat_taxable_amount:
-            tax_spec['ReverseVATTaxableAmount'] = reverse_vat_taxable_amount
-        if exempt_vat_taxable_amount:
-            tax_spec['ExemptVATTaxableAmount'] = exempt_vat_taxable_amount
-        if other_taxes_amount:
-            tax_spec['OtherTaxesAmount'] = other_taxes_amount
-
-        message['InvoiceRequest']['SalesBookInvoice']['TaxesPerSeller'].append(tax_spec)
+        for tax_per_seller in taxes_per_seller:
+            message['InvoiceRequest']['SalesBookInvoice']['TaxesPerSeller'].append(tax_per_seller.build_json())
 
         if customer_vat_number:
             message['InvoiceRequest']['SalesBookInvoice']['CustomerVATNumber'] = customer_vat_number
 
         if returns_amount:
             message['InvoiceRequest']['SalesBookInvoice']['ReturnsAmount'] = returns_amount
-
 
         if reference_invoice_number:
             reference_invoice = [{
