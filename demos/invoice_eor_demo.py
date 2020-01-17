@@ -7,7 +7,7 @@ from furs_fiscal.api import FURSInvoiceAPI
 
 
 # Path to our .p12 cert file
-P12_CERT_PATH = 'demos/demo_podjetje.p12'
+P12_CERT_PATH = 'demo_podjetje.p12'
 # Password for out .p12 cert file
 P12_CERT_PASS = 'Geslo123#'
 
