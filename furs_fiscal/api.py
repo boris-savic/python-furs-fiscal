@@ -219,19 +219,14 @@ class TaxesPerSeller:
 
 class FURSInvoiceAPI(FURSBaseAPI):
 
-    def __init__(self, low_tax_rate=9.5, high_tax_rate=22, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         """
         Initialize the class with current active tax rates in Slovenia.
-
-        :param low_tax_rate: (float) - Defaults to 9.5 for 9.5%
-        :param high_tax_rate:  (float) - Defaults to 22 for 22%
         :param args:
         :param kwargs:
         :return:
         """
         FURSBaseAPI.__init__(self, *args, **kwargs)
-        self.low_tax_rate = low_tax_rate
-        self.high_tax_rate = high_tax_rate
 
     def calculate_zoi(self,
                       tax_number,
