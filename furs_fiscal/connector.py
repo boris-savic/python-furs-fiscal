@@ -1,7 +1,9 @@
 import tempfile
 import requests
+
 from OpenSSL import crypto
 from jose import jws
+
 
 requests.packages.urllib3.disable_warnings()
 

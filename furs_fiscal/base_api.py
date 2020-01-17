@@ -68,8 +68,8 @@ class FURSBaseAPI(object):
             FURSException: If response contains error
         """
         if server_response[list(server_response.keys())[0]].get('Error', None):
-            raise FURSException(code=server_response[server_response.keys()[0]]['Error']['ErrorCode'],
-                                message=server_response[server_response.keys()[0]]['Error']['ErrorMessage'])
+            raise FURSException(code=server_response[list(server_response.keys())[0]]['Error']['ErrorCode'],
+                                message=server_response[list(server_response.keys())[0]]['Error']['ErrorMessage'])
 
         return server_response
 
