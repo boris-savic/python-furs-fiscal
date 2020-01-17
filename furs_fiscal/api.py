@@ -202,6 +202,9 @@ class TaxesPerSeller:
             'VAT': self.vat_amounts,
         }
 
+        if len(self.vat_amounts) == 0:
+            tax_spec.pop('VAT')
+
         if self.non_taxable_amount:
             tax_spec['NontaxableAmount'] = self.non_taxable_amount
         if self.reverse_vat_taxable_amount:
