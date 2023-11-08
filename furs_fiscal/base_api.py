@@ -1,8 +1,9 @@
 import json
+import jwt
 
-from jose import jws
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
 
-from OpenSSL import crypto
 from requests.exceptions import Timeout
 from requests import codes
 
@@ -49,7 +50,7 @@ class FURSBaseAPI(object):
 
             if response.status_code == codes.ok:
                 # TODO - we should verify server signature!
-                server_response = json.loads(jws.get_unverified_claims(response.json()['token']))
+                server_response = jwt.decode(response.json()['token'], options={"verify_signature": False})
                 return self._check_for_errors(server_response)
             else:
                 raise ConnectionException(code=response.status_code,
@@ -73,7 +74,10 @@ class FURSBaseAPI(object):
 
         return server_response
 
-    def _sign(self, content, digest='SHA256'):
-        pkey = self.connector.p12.get_privatekey()
-
-        return crypto.sign(pkey=pkey, data=content, digest=digest)
+    def _sign(self, content, algorithm=hashes.SHA256()):
+        return self.connector.p12.key.sign(data=bytes(content, 'utf-8'),
+                                           padding=padding.PSS(
+                                                mgf=padding.MGF1(hashes.SHA256()),
+                                                salt_length=padding.PSS.MAX_LENGTH
+                                            ),
+                                           algorithm=algorithm)

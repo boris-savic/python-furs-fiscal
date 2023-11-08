@@ -1,8 +1,11 @@
 import tempfile
 import requests
+import jwt
 
 from OpenSSL import crypto
-from jose import jws
+from OpenSSL.crypto import X509
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.serialization.pkcs12 import load_pkcs12
 
 
 requests.packages.urllib3.disable_warnings()
@@ -59,7 +62,7 @@ class Connector(object):
         """
         if self.p12_buffer is None:
             self.p12_buffer = open(self.p12_path, 'rb').read()
-        self.p12 = crypto.load_pkcs12(buffer=self.p12_buffer, passphrase=p12_password)
+        self.p12 = load_pkcs12(self.p12_buffer, password=bytes(p12_password, 'utf-8'))
         self._store_temp_files()
 
     def _store_temp_files(self):
@@ -70,11 +73,13 @@ class Connector(object):
         :return: None
         """
         self.cert_temp = tempfile.NamedTemporaryFile(delete=False)
-        self.cert_temp.write(crypto.dump_certificate(crypto.FILETYPE_PEM, self.p12.get_certificate()))
+        self.cert_temp.write(crypto.dump_certificate(crypto.FILETYPE_PEM, X509.from_cryptography(self.p12.cert.certificate)))
         self.cert_temp.flush()
 
         self.pkey_temp = tempfile.NamedTemporaryFile(delete=False)
-        self.pkey_temp.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, self.p12.get_privatekey()))
+        self.pkey_temp.write(self.p12.key.private_bytes(encoding=serialization.Encoding.PEM,
+                                                        format=serialization.PrivateFormat.TraditionalOpenSSL,
+                                                        encryption_algorithm=serialization.NoEncryption()))
         self.pkey_temp.flush()
 
     def _get_jws_header(self):
@@ -85,14 +90,14 @@ class Connector(object):
         """
         jws_header = {
             'alg': 'RS256',
-            'subject_name': ",".join(["=".join(str(tpl)) for tpl in self.p12.get_certificate().get_subject().get_components()]),
-            'issuer_name': ",".join(["=".join(str(tpl)) for tpl in self.p12.get_certificate().get_issuer().get_components()]),
-            'serial': self.p12.get_certificate().get_serial_number()
+            'subject_name': self.p12.cert.certificate.subject.rfc4514_string(),
+            'issuer_name': self.p12.cert.certificate.issuer.rfc4514_string(),
+            'serial': self.p12.cert.certificate.serial_number
         }
 
         return jws_header
 
-    def _jwt_sign(self, header, payload, algorithm=jws.ALGORITHMS.RS256):
+    def _jwt_sign(self, header, payload, algorithm='RS256'):
         """
         Perform JWT signature of the header and payload.
 
@@ -101,11 +106,10 @@ class Connector(object):
         :param algorithm: (string) which algorithm to use. Default: 'RS256'
         :return: (string) Signed base64 encoded content
         """
-        secret = crypto.dump_privatekey(crypto.FILETYPE_PEM, self.p12.get_privatekey()).decode("utf-8")
-        return jws.sign(payload,
-                        key=secret,
-                        headers=header,
-                        algorithm=algorithm)
+        return jwt.encode(payload,
+                          key=self.p12.key,
+                          headers=header,
+                          algorithm=algorithm)
 
     def post(self, path, json):
         """
